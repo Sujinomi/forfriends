@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalized Greeting with Spotify</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            background-color: #e8ffbe;
+        }
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        input {
+            padding: 10px;
+            font-size: 16px;
+            width: 80%;
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #0073e6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        .greeting, .quote, .spotify {
+            margin-top: 20px;
+        }
+        .spotify iframe {
+            margin-top: 20px;
+            width: 300px;
+            height: 80px;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome!</h2>
+        <input type="text" id="userName" placeholder="Enter your name" />
+        <button onclick="displayGreeting()">Submit</button>
+
+        <div class="greeting" id="greeting"></div>
+        <div class="quote" id="quote"></div>
+        <div class="spotify" id="spotify"></div>
+    </div>
+
+    <script>
+        // Array of Spotify track URIs (for embedding)
+        const spotifyTracks = [
+            'spotify:track:5kxOQDA9AcuNQXHvg5NpX4', 
+            'spotify:track:6TvxPS4fj4LUdjw2es4g21', 
+            'spotify:track:6tPFZRJKj5JR7qO3qWxaVm',
+            "spotify:track:5enxwA8aAbwZbf5qCHORXi", // Taylor Swift - All Too Well (10 Minute Version)
+    "spotify:track:4RVwu0g32PAqgUiJoXsdF8", // Billie Eilish - Happier Than Ever
+    "spotify:track:0aPZbnkMoWJaJ5CNVLCj8S", // Olivia Rodrigo - traitor
+    "spotify:track:4xqrdfXkTW4T0RauPLv3WA", // Conan Gray - Heather
+    "spotify:track:43zdsphuZLzwA9k4DJhU0I", // Billie Eilish - when the party's over
+    "spotify:track:4pvb0WLRcMtbPGmtejJJ6y", // Taylor Swift - exile (feat. Bon Iver)
+    "spotify:track:6UFivO2zqqPFPoQYsEMuCc", // Clairo - Bags
+    "spotify:track:530l1XggFTVKZIM3khE10r", // NIKI - Lose
+    "spotify:track:52iLDrSoRtf9lcgFuLVfqE", // Sasha Sloan - Older
+    "spotify:track:5BN59BDczcpxstFKILIH0q", // Phoebe Bridgers - Savior Complex
+    "spotify:track:4pfhgOylRLcBll5JjUsJZj", // FINNEAS - Let’s Fall in Love for the Night
+    "spotify:track:4IablJ6SqVNGY4vrseyKxu", // H.E.R. - Hard Place
+    "spotify:track:6I3mqTwhRpn34SLVafSH7G", // Justin Bieber - Ghost
+    "spotify:track:3jjsRKEsF42ccXf8kWR3nu", // Mitski - Washing Machine Heart
+    "spotify:track:0Jlcvv8IykzHaSmj49uNW8", // Taylor Swift - the 1
+    "spotify:track:6Kkt27YmFyIFrcX3QXFi2o", // Lorde - Liability
+    "spotify:track:5meVa5klVlJalupZTvv5XX", // Gracie Abrams - 21
+    "spotify:track:68HocO7fx9z0MgDU0ZPHro", // NIKI - Every Summertime
+    "spotify:track:2NPQbiRn9f5JWlCgNLNZJn", // Chelsea Cutler - Sad Tonight
+    "spotify:track:26dXOkhzMxLLNaUXt77HQc", // Keshi - always
+    "spotify:track:7B3z0ySL9Rr0XvZEAjWZzM", // Clairo - Sofia
+    "spotify:track:0gplL1WMoJ6iYaPgMCL0gX", // Adele - Easy On Me
+    "spotify:track:5wANPM4fQCJwkGd4rN57mH", // Olivia Rodrigo - drivers license
+    "spotify:track:6zeeWid2sgw4lap2jV61PZ", // Khalid - Better
+    "spotify:track:4Kjo34blxmLG5HNUKEvHRM", // BENEE - Happen to Me
+    "spotify:track:5yCXLEi384DHGRXYMXgjBR", // Julia Michaels - Lie Like This
+    "spotify:track:4Bz72Fo4teXVMvDUi8xuw7"  // NIKI - Split
+        ];
+
+        // Array of random quotes
+        const quotes = [
+    "Love isn’t about finding someone to complete you; it’s about finding someone who accepts you completely. True love enhances your soul and helps you become the best version of yourself.",
+    "Every day is a gift. Embrace it, cherish it, and make it count, because life’s beauty lies in the journey, not just the destination.",
+    "Friendship isn’t about who you’ve known the longest; it’s about who walked into your life and said, ‘I’m here for you’—and proved it.",
+    "Life is full of challenges, but each one is an opportunity to grow. Embrace the struggles, learn from them, and you’ll emerge stronger and wiser.",
+    "True love is not found; it’s created. It’s a daily decision to cherish, respect, and support one another, building something that lasts a lifetime.",
+    "Dreams are the whispers of your soul. Listen to them, follow them, and let them lead you to places you never thought possible.",
+    "Happiness is not about having all you want; it’s about appreciating all you have. Gratitude turns what we have into enough.",
+    "Love is a journey, not a destination. It’s about choosing to walk together, hand in hand, even through the hardest times. Every step taken together strengthens the bond.",
+    "Success is not measured by what you achieve, but by how you inspire others. Make an impact that goes beyond yourself.",
+    "True friendship isn’t about being inseparable, but about being separated and nothing changes. It’s a bond that endures the test of time and distance.",
+    "Sometimes, the smallest things take up the most room in your heart. Cherish the little moments, for they become the memories that last a lifetime.",
+    "Life doesn’t always give you the people you want, but it gives you the people you need. Each one is there to teach, help, love, or make you stronger.",
+    "The greatest gift you can give to someone is your time, because it’s something you can never get back. Spend it wisely with those you love.",
+    "Courage doesn’t always roar. Sometimes it’s the quiet voice at the end of the day saying, ‘I will try again tomorrow.’",
+    "Love is not about how many days, months, or years you’ve been together. It’s about how much you love each other every single day.",
+    "Life is short. Take time to appreciate the people who make you smile, laugh, and feel alive. They are what make life worthwhile.",
+    "Success is not about the accolades or titles you earn but about the difference you make in others’ lives. Leave a legacy of kindness and compassion.",
+    "True happiness comes not from material things but from peace, joy, and love shared with those close to you.",
+    "Never underestimate the power of kindness. A simple smile, a word of encouragement, or a thoughtful act can change someone’s day—or even their life.",
+    "Believe in the beauty of your dreams. They are the roadmap to a life filled with purpose and fulfillment.",
+    "Life’s greatest moments are often hidden in the simplest acts of love and kindness. Cherish them, for they are what truly enriches the soul.",
+    "Keep faith in your journey, even when it feels unclear. Sometimes the best destinations come from the most unexpected paths.",
+    "Every person you meet brings something special to your life. Treasure the connections and let them inspire you to grow.",
+    "Growth begins at the end of your comfort zone. Challenge yourself, embrace the unfamiliar, and see the incredible things you’re capable of.",
+    "The energy you put out into the world comes back to you. Spread love, compassion, and positivity, and watch your world transform.",
+    "In life, it’s not the years but the moments that truly matter. Make each one count and live with purpose.",
+    "Life is a canvas, and you are the artist. Paint it with love, kindness, and joy, and you’ll create something beautiful.",
+    "Remember that you are stronger than you think and braver than you feel. Trust in your resilience, and you’ll overcome anything.",
+    "Love is a choice made daily, not just a feeling. Choose to love fiercely, and it will illuminate every corner of your life.",
+    "Life will test you, but each challenge is a lesson waiting to be learned. Embrace the growth and trust the journey."
+];
+
+
+        // Function to display greeting, random quote, and embedded Spotify player
+        function displayGreeting() {
+            const name = document.getElementById('userName').value;
+            if (name) {
+                // Display greeting message
+                document.getElementById('greeting').innerText = `Hello, ${name}!`;
+
+                // Display random quote
+                const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+                document.getElementById('quote').innerText = randomQuote;
+
+                // Display random Spotify player
+                const randomTrack = spotifyTracks[Math.floor(Math.random() * spotifyTracks.length)];
+                const spotifyIframe = `<iframe src="https://open.spotify.com/embed/track/${randomTrack.split(':')[2]}" allow="encrypted-media"></iframe>`;
+                document.getElementById('spotify').innerHTML = spotifyIframe;
+            } else {
+                alert("Please enter your name.");
+            }
+        }
+    </script>
+</body>
+</html>
